@@ -1,0 +1,126 @@
+{
+  "users": [
+    {
+      "id": "1",
+      "username": "ProGamer99",
+      "teamName": "Dragon Warriors",
+      "avatar": "https://images.unsplash.com/photo-1566577739112-5180d4bf9390?w=100&h=100&fit=crop",
+      "points": 58,
+      "played": 24,
+      "won": 18,
+      "drawn": 4,
+      "lost": 2,
+      "goalsFor": 52,
+      "goalsAgainst": 18,
+      "goalDifference": 34,
+      "form": [
+        "W",
+        "W",
+        "D",
+        "W",
+        "L"
+      ],
+      "rank": 1
+    },
+    {
+      "id": "2",
+      "username": "eFootballKing",
+      "teamName": "Cyber Strikers",
+      "avatar": "https://images.unsplash.com/photo-1551958219-acbc040f7370?w=100&h=100&fit=crop",
+      "points": 55,
+      "played": 24,
+      "won": 17,
+      "drawn": 4,
+      "lost": 3,
+      "goalsFor": 48,
+      "goalsAgainst": 22,
+      "goalDifference": 26,
+      "form": [
+        "W",
+        "D",
+        "W",
+        "W",
+        "W"
+      ],
+      "rank": 2
+    },
+    {
+      "id": "dde3",
+      "username": "jaseel",
+      "teamName": "wolf army",
+      "avatar": "",
+      "points": 0,
+      "played": 0,
+      "won": 0,
+      "drawn": 0,
+      "lost": 0,
+      "goalsFor": 0,
+      "goalsAgainst": 0,
+      "goalDifference": 0,
+      "form": [],
+      "rank": 3
+    },
+    {
+      "id": "69c8",
+      "username": "naheel",
+      "teamName": "naheel",
+      "avatar": "",
+      "points": 0,
+      "played": 0,
+      "won": 0,
+      "drawn": 0,
+      "lost": 0,
+      "goalsFor": 0,
+      "goalsAgainst": 0,
+      "goalDifference": 0,
+      "form": [],
+      "rank": 4
+    }
+  ],
+  "fixtures": [
+    {
+      "id": "1",
+      "round": 25,
+      "homeTeam": "Dragon Warriors",
+      "awayTeam": "Cyber Strikers",
+      "homeScore": null,
+      "awayScore": null,
+      "date": "2024-03-15",
+      "time": "20:00",
+      "status": "scheduled",
+      "venue": "Main Arena"
+    },
+    {
+      "id": "2",
+      "round": 25,
+      "homeTeam": "Thunder FC",
+      "awayTeam": "Neon Blasters",
+      "homeScore": null,
+      "awayScore": null,
+      "date": "2024-03-15",
+      "time": "21:30",
+      "status": "scheduled",
+      "venue": "Stadium 2"
+    },
+    {
+      "id": "3",
+      "round": 24,
+      "homeTeam": "Cyber Strikers",
+      "awayTeam": "Thunder FC",
+      "homeScore": null,
+      "awayScore": null,
+      "date": "2024-03-08",
+      "time": "20:00",
+      "status": "scheduled",
+      "venue": "Main Arena"
+    }
+  ],
+  "leagueInfo": {
+    "id": 1,
+    "name": "eFootball Premier League",
+    "season": "2024 Spring Season",
+    "totalRounds": 38,
+    "currentRound": 25,
+    "status": "ongoing"
+  }
+}
