@@ -9,10 +9,9 @@ const Home = () => {
   const [news, setNews] = useState([]);
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    fetchHomeData();
-  }, []);
-
+  // ------------------------------
+  // Declare fetchHomeData BEFORE using it
+  // ------------------------------
   const fetchHomeData = async () => {
     try {
       const [usersRes, fixturesRes, leagueRes, newsRes] = await Promise.all([
@@ -29,6 +28,7 @@ const Home = () => {
 
       // Sort users by points and take top 5
       const topUsers = usersData.sort((a, b) => b.points - a.points).slice(0, 5);
+
       // Get upcoming matches (next 3)
       const upcomingMatches = fixturesData
         .filter(f => f.status === 'scheduled')
@@ -44,6 +44,17 @@ const Home = () => {
       setLoading(false);
     }
   };
+
+  // ------------------------------
+  // Use effect correctly with async function
+  // ------------------------------
+  useEffect(() => {
+    const loadData = async () => {
+      await fetchHomeData();
+    };
+
+    loadData();
+  }, []);
 
   const getFormColor = (result) => {
     switch (result) {
@@ -360,7 +371,7 @@ const Home = () => {
               🎮 View Competition
             </Link>
             <button className="border-2 border-white text-white hover:bg-white hover:text-gray-900 font-bold py-4 px-8 rounded-2xl text-lg transition duration-300 transform hover:scale-105">
-              📝 Register Interest
+              ⚡ Join Now
             </button>
           </div>
         </div>
