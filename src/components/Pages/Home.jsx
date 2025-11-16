@@ -3,7 +3,7 @@ import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 
 const Home = () => {
-  const API_BASE = "http://localhost:3001";
+  const API_BASE = "https://football-web-bd.onrender.com";
 
   const [stats, setStats] = useState({
     totalPlayers: 0,

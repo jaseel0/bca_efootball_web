@@ -2,7 +2,7 @@
 import React, { useState, useEffect } from 'react';
 
 const Players = () => {
-  const API_BASE = "http://localhost:3001";
+  const API_BASE = "https://football-web-bd.onrender.com";
   const [users, setUsers] = useState([]);
   const [fixtures, setFixtures] = useState([]);
   const [leagues, setLeagues] = useState([]);
