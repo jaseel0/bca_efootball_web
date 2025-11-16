@@ -91,30 +91,191 @@
       "venue": "Main Arena"
     },
     {
-      "id": "046b",
-      "homeTeam": "wolf army",
-      "awayTeam": "naheel",
-      "date": "2025-11-12",
-      "time": "23:54",
-      "venue": "wwwwwwww",
-      "round": 1,
+      "id": "f_1763276964722",
+      "homeTeam": "Dragon Warriors",
+      "awayTeam": "wolf army",
       "homeScore": null,
       "awayScore": null,
+      "date": "2025-12-11",
+      "time": "20:00",
+      "venue": "Main Arena",
+      "round": 1,
       "status": "scheduled",
-      "leagueId": 103
+      "leagueId": "93ad"
+    },
+    {
+      "id": "f_1763276964723",
+      "homeTeam": "wolf army",
+      "awayTeam": "Dragon Warriors",
+      "homeScore": null,
+      "awayScore": null,
+      "date": "2025-12-21",
+      "time": "20:00",
+      "venue": "Main Arena",
+      "round": 2,
+      "status": "scheduled",
+      "leagueId": "93ad"
+    },
+    {
+      "id": "f_1763276971759",
+      "homeTeam": "Dragon Warriors",
+      "awayTeam": "Cyber Strikers",
+      "homeScore": null,
+      "awayScore": null,
+      "date": "2025-12-05",
+      "time": "20:00",
+      "venue": "Main Arena",
+      "round": 1,
+      "status": "scheduled",
+      "leagueId": "0103"
+    },
+    {
+      "id": "f_1763276971763",
+      "homeTeam": "Dragon Warriors",
+      "awayTeam": "wolf army",
+      "homeScore": null,
+      "awayScore": null,
+      "date": "2025-12-13",
+      "time": "20:00",
+      "venue": "Main Arena",
+      "round": 1,
+      "status": "scheduled",
+      "leagueId": "0103"
+    },
+    {
+      "id": "f_1763276971760",
+      "homeTeam": "Cyber Strikers",
+      "awayTeam": "Dragon Warriors",
+      "homeScore": null,
+      "awayScore": null,
+      "date": "2025-12-21",
+      "time": "20:00",
+      "venue": "Main Arena",
+      "round": 2,
+      "status": "scheduled",
+      "leagueId": "0103"
+    },
+    {
+      "id": "f_1763276971764",
+      "homeTeam": "wolf army",
+      "awayTeam": "Dragon Warriors",
+      "homeScore": null,
+      "awayScore": null,
+      "date": "2025-11-19",
+      "time": "20:00",
+      "venue": "Main Arena",
+      "round": 2,
+      "status": "scheduled",
+      "leagueId": "0103"
+    },
+    {
+      "id": "f_1763276971765",
+      "homeTeam": "Cyber Strikers",
+      "awayTeam": "naheel",
+      "homeScore": null,
+      "awayScore": null,
+      "date": "2025-12-11",
+      "time": "20:00",
+      "venue": "Main Arena",
+      "round": 1,
+      "status": "scheduled",
+      "leagueId": "0103"
+    },
+    {
+      "id": "f_1763276971761",
+      "homeTeam": "Dragon Warriors",
+      "awayTeam": "naheel",
+      "homeScore": null,
+      "awayScore": null,
+      "date": "2025-12-13",
+      "time": "20:00",
+      "venue": "Main Arena",
+      "round": 1,
+      "status": "scheduled",
+      "leagueId": "0103"
+    },
+    {
+      "id": "f_1763276971762",
+      "homeTeam": "naheel",
+      "awayTeam": "Dragon Warriors",
+      "homeScore": null,
+      "awayScore": null,
+      "date": "2025-12-21",
+      "time": "20:00",
+      "venue": "Main Arena",
+      "round": 2,
+      "status": "scheduled",
+      "leagueId": "0103"
+    },
+    {
+      "id": "f_1763276971766",
+      "homeTeam": "naheel",
+      "awayTeam": "Cyber Strikers",
+      "homeScore": null,
+      "awayScore": null,
+      "date": "2025-12-29",
+      "time": "20:00",
+      "venue": "Main Arena",
+      "round": 2,
+      "status": "scheduled",
+      "leagueId": "0103"
+    },
+    {
+      "id": "f_1763276971767",
+      "homeTeam": "Cyber Strikers",
+      "awayTeam": "wolf army",
+      "homeScore": null,
+      "awayScore": null,
+      "date": "2025-12-02",
+      "time": "20:00",
+      "venue": "Main Arena",
+      "round": 1,
+      "status": "scheduled",
+      "leagueId": "0103"
+    },
+    {
+      "id": "f_1763276971768",
+      "homeTeam": "wolf army",
+      "awayTeam": "Cyber Strikers",
+      "homeScore": null,
+      "awayScore": null,
+      "date": "2025-11-23",
+      "time": "20:00",
+      "venue": "Main Arena",
+      "round": 2,
+      "status": "scheduled",
+      "leagueId": "0103"
+    },
+    {
+      "id": "f_1763276971769",
+      "homeTeam": "naheel",
+      "awayTeam": "wolf army",
+      "homeScore": null,
+      "awayScore": null,
+      "date": "2025-11-16",
+      "time": "20:00",
+      "venue": "Main Arena",
+      "round": 1,
+      "status": "scheduled",
+      "leagueId": "0103"
+    },
+    {
+      "id": "f_1763276971770",
+      "homeTeam": "wolf army",
+      "awayTeam": "naheel",
+      "homeScore": null,
+      "awayScore": null,
+      "date": "2025-12-18",
+      "time": "20:00",
+      "venue": "Main Arena",
+      "round": 2,
+      "status": "scheduled",
+      "leagueId": "0103"
     }
   ],
-  "leagueInfo": {
-    "id": 1,
-    "name": "eFootball Premier League",
-    "season": "2024 Spring Season",
-    "totalRounds": 38,
-    "currentRound": 25,
-    "status": "ongoing"
-  },
   "leagues": [
     {
-      "id": 1,
+      "id": "1",
       "name": "Premier League",
       "description": "Main competition league",
       "maxTeams": 8,
@@ -137,6 +298,19 @@
       "fixtures": [],
       "status": "active",
       "createdAt": "2025-11-15T18:20:44.052Z"
+    },
+    {
+      "id": "93ad",
+      "name": "collage",
+      "description": "collage league",
+      "maxTeams": 8,
+      "teams": [
+        "Dragon Warriors",
+        "wolf army"
+      ],
+      "fixtures": [],
+      "status": "active",
+      "createdAt": "2025-11-16T06:41:21.637Z"
     }
   ]
 }

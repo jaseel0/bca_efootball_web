@@ -1,92 +1,122 @@
 // pages/Home.jsx
-import React, { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
+import React, { useState, useEffect } from "react";
+import { Link } from "react-router-dom";
 
 const Home = () => {
-  const [users, setUsers] = useState([]);
-  const [fixtures, setFixtures] = useState([]);
-  const [leagueInfo, setLeagueInfo] = useState({});
-  const [news, setNews] = useState([]);
+  const API_BASE = "http://localhost:3001";
+
+  const [stats, setStats] = useState({
+    totalPlayers: 0,
+    totalMatches: 0,
+    activeLeagues: 0,
+    liveMatches: 0,
+  });
+
+  const [recentMatches, setRecentMatches] = useState([]);
+  const [topPlayers, setTopPlayers] = useState([]);
+  const [leagues, setLeagues] = useState([]);
   const [loading, setLoading] = useState(true);
 
-  // ------------------------------
-  // Declare fetchHomeData BEFORE using it
-  // ------------------------------
-  const fetchHomeData = async () => {
-    try {
-      const [usersRes, fixturesRes, leagueRes, newsRes] = await Promise.all([
-        fetch('http://localhost:3001/users'),
-        fetch('http://localhost:3001/fixtures'),
-        fetch('http://localhost:3001/leagueInfo'),
-        fetch('http://localhost:3001/news')
-      ]);
-
-      const usersData = await usersRes.json();
-      const fixturesData = await fixturesRes.json();
-      const leagueData = await leagueRes.json();
-      const newsData = await newsRes.json();
-
-      // Sort users by points and take top 5
-      const topUsers = usersData.sort((a, b) => b.points - a.points).slice(0, 5);
-
-      // Get upcoming matches (next 3)
-      const upcomingMatches = fixturesData
-        .filter(f => f.status === 'scheduled')
-        .slice(0, 3);
-
-      setUsers(topUsers);
-      setFixtures(upcomingMatches);
-      setLeagueInfo(leagueData);
-      setNews(newsData);
-      setLoading(false);
-    } catch (error) {
-      console.error('Failed to fetch home data:', error);
-      setLoading(false);
-    }
-  };
-
-  // ------------------------------
-  // Use effect correctly with async function
-  // ------------------------------
+  // -------------------------
+  // FIXED React 19-safe effect
+  // -------------------------
   useEffect(() => {
-    const loadData = async () => {
-      await fetchHomeData();
-    };
+    let ignore = false;
 
-    loadData();
-  }, []);
+    async function fetchHomeData() {
+      try {
+        const [usersRes, fixturesRes, leaguesRes] = await Promise.all([
+          fetch(`${API_BASE}/users`),
+          fetch(`${API_BASE}/fixtures`),
+          fetch(`${API_BASE}/leagues`),
+        ]);
 
-  const getFormColor = (result) => {
-    switch (result) {
-      case 'W': return 'bg-green-500';
-      case 'D': return 'bg-yellow-500';
-      case 'L': return 'bg-red-500';
-      default: return 'bg-gray-500';
+        const [usersData, fixturesData, leaguesData] = await Promise.all([
+          usersRes.json(),
+          fixturesRes.json(),
+          leaguesRes.json(),
+        ]);
+
+        if (ignore) return;
+
+        // Stats
+        const completed = fixturesData.filter((f) => f.status === "completed");
+        const live = fixturesData.filter((f) => f.status === "live");
+
+        setStats({
+          totalPlayers: usersData.length,
+          totalMatches: completed.length,
+          activeLeagues: leaguesData.length,
+          liveMatches: live.length,
+        });
+
+        // Recent Matches
+        setRecentMatches(completed.slice(-3).reverse());
+
+        // Top Players
+        setTopPlayers(
+          [...usersData].sort((a, b) => b.points - a.points).slice(0, 3)
+        );
+
+        setLeagues(leaguesData);
+        setLoading(false);
+      } catch (error) {
+        console.error("Error fetching home data:", error);
+        if (!ignore) setLoading(false);
+      }
     }
+
+    fetchHomeData();
+
+    return () => {
+      ignore = true;
+    };
+  }, [API_BASE]);
+
+  // Helpers
+  const getInitials = (teamName) => {
+    if (!teamName) return "TM";
+    return teamName
+      .split(" ")
+      .map((w) => w.charAt(0).toUpperCase())
+      .join("")
+      .slice(0, 2);
   };
 
-  const getTimeUntilMatch = (matchDate, matchTime) => {
-    const matchDateTime = new Date(`${matchDate}T${matchTime}`);
-    const now = new Date();
-    const diffMs = matchDateTime - now;
-    const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24));
-    const diffHours = Math.floor((diffMs % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-    
-    if (diffDays > 0) {
-      return `in ${diffDays} day${diffDays > 1 ? 's' : ''}`;
-    } else if (diffHours > 0) {
-      return `in ${diffHours} hour${diffHours > 1 ? 's' : ''}`;
-    } else {
-      return 'Today';
+  const getTeamColor = (teamName) => {
+    const colors = [
+      "bg-[#850cec]",
+      "bg-purple-600",
+      "bg-blue-600",
+      "bg-green-600",
+      "bg-red-600",
+      "bg-yellow-600",
+      "bg-pink-600",
+      "bg-indigo-600",
+    ];
+    const index = (teamName?.length || 0) % colors.length;
+    return colors[index];
+  };
+
+  const getRankBadge = (rank) => {
+    switch (rank) {
+      case 1:
+        return "🥇";
+      case 2:
+        return "🥈";
+      case 3:
+        return "🥉";
+      default:
+        return `#${rank}`;
     }
   };
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-gray-900 via-blue-900 to-purple-900 pt-16">
+      <div className="min-h-screen bg-gradient-to-br from-black to-purple-900 pt-16">
         <div className="max-w-7xl mx-auto py-12 px-4">
           <div className="flex justify-center items-center h-64">
-            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-green-400"></div>
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#850cec]"></div>
           </div>
         </div>
       </div>
@@ -94,288 +124,315 @@ const Home = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-900 via-blue-900 to-purple-900 pt-16">
-      {/* Hero Section */}
+    <div className="min-h-screen bg-gradient-to-br from-black to-purple-900 pt-16">
+      {/* HERO SECTION */}
       <section className="relative overflow-hidden">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20">
           <div className="text-center">
             <h1 className="text-5xl md:text-7xl font-bold text-white mb-6">
-              <span className="bg-gradient-to-r from-green-400 to-blue-500 bg-clip-text text-transparent">
+              Welcome to{" "}
+              <span className="bg-gradient-to-r from-[#850cec] to-purple-500 bg-clip-text text-transparent">
                 eFootball
               </span>
-              <br />
-              <span className="text-3xl md:text-5xl text-gray-300">Championship 2024</span>
             </h1>
-            <p className="text-xl text-gray-300 mb-8 max-w-3xl mx-auto">
-              The ultimate competitive eFootball experience. Join the battle, prove your skills, and become a legend.
+            <p className="text-xl md:text-2xl text-gray-300 mb-8 max-w-3xl mx-auto">
+              Experience the ultimate competitive gaming platform. Join leagues,
+              compete with players worldwide, and climb the ranks to become the
+              champion.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <Link
                 to="/league"
-                className="bg-gradient-to-r from-green-500 to-blue-500 hover:from-green-600 hover:to-blue-600 text-white font-bold py-4 px-8 rounded-2xl text-lg transition duration-300 transform hover:scale-105 shadow-2xl"
+                className="bg-[#850cec] hover:bg-purple-700 text-white font-bold py-4 px-8 rounded-2xl transition duration-300 transform hover:scale-105 shadow-lg shadow-[#850cec]/30"
               >
-                🏆 View League Table
+                🏆 View Leagues
               </Link>
               <Link
                 to="/players"
-                className="border-2 border-green-400 text-green-400 hover:bg-green-400 hover:text-white font-bold py-4 px-8 rounded-2xl text-lg transition duration-300 transform hover:scale-105"
+                className="bg-gray-800 hover:bg-gray-700 text-white font-bold py-4 px-8 rounded-2xl border-2 border-[#850cec] transition duration-300 transform hover:scale-105"
               >
-                👥 See All Players
+                👥 Browse Players
               </Link>
             </div>
           </div>
         </div>
 
-        {/* Animated Background Elements */}
-        <div className="absolute top-0 left-0 w-full h-full overflow-hidden pointer-events-none">
-          <div className="absolute -top-40 -right-40 w-80 h-80 bg-green-500 rounded-full mix-blend-multiply filter blur-xl opacity-20 animate-pulse"></div>
-          <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-blue-500 rounded-full mix-blend-multiply filter blur-xl opacity-20 animate-pulse delay-1000"></div>
+        {/* Background animations */}
+        <div className="absolute top-0 left-0 w-full h-full overflow-hidden -z-10">
+          <div className="absolute top-1/4 left-1/4 w-64 h-64 bg-[#850cec] rounded-full blur-3xl opacity-20 animate-pulse"></div>
+          <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-purple-600 rounded-full blur-3xl opacity-10 animate-bounce"></div>
         </div>
       </section>
 
-      {/* Stats Overview */}
-      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
-          <div className="bg-gray-800/50 backdrop-blur-sm rounded-2xl p-6 text-center border border-gray-700 hover:border-green-400 transition duration-300">
-            <div className="text-3xl font-bold text-green-400 mb-2">{leagueInfo.totalPlayers || 8}</div>
-            <div className="text-gray-400 font-semibold">Active Players</div>
-          </div>
-          <div className="bg-gray-800/50 backdrop-blur-sm rounded-2xl p-6 text-center border border-gray-700 hover:border-blue-400 transition duration-300">
-            <div className="text-3xl font-bold text-blue-400 mb-2">{leagueInfo.totalMatches || 152}</div>
-            <div className="text-gray-400 font-semibold">Total Matches</div>
-          </div>
-          <div className="bg-gray-800/50 backdrop-blur-sm rounded-2xl p-6 text-center border border-gray-700 hover:border-purple-400 transition duration-300">
-            <div className="text-3xl font-bold text-purple-400 mb-2">{leagueInfo.currentRound || 25}</div>
-            <div className="text-gray-400 font-semibold">Current Round</div>
-          </div>
-          <div className="bg-gray-800/50 backdrop-blur-sm rounded-2xl p-6 text-center border border-gray-700 hover:border-yellow-400 transition duration-300">
-            <div className="text-3xl font-bold text-yellow-400 mb-2">{leagueInfo.prizePool || '$50,000'}</div>
-            <div className="text-gray-400 font-semibold">Prize Pool</div>
+      {/* STATS */}
+      <section className="py-16">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
+            {[
+              { label: "Total Players", value: stats.totalPlayers },
+              { label: "Matches Played", value: stats.totalMatches },
+              { label: "Active Leagues", value: stats.activeLeagues },
+              { label: "Live Matches", value: stats.liveMatches },
+            ].map((s, i) => (
+              <div
+                key={i}
+                className="bg-gray-800/50 backdrop-blur-sm rounded-2xl p-6 text-center border border-gray-700 hover:border-[#850cec] transform hover:scale-105 transition"
+              >
+                <div className="text-3xl font-bold text-[#850cec] mb-2">
+                  {s.value}
+                </div>
+                <div className="text-gray-400 font-semibold">{s.label}</div>
+              </div>
+            ))}
           </div>
         </div>
       </section>
 
-      {/* Main Content Grid */}
-      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-          {/* Upcoming Matches */}
-          <div className="bg-gray-800/50 backdrop-blur-sm rounded-3xl p-8 border border-gray-700 shadow-2xl">
-            <div className="flex items-center justify-between mb-8">
-              <h2 className="text-3xl font-bold text-white flex items-center">
-                <span className="w-3 h-3 bg-red-500 rounded-full mr-3 animate-pulse"></span>
-                Upcoming Matches
-              </h2>
+      {/* MAIN GRID */}
+      <section className="py-16">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 grid grid-cols-1 lg:grid-cols-2 gap-8">
+          {/* TOP PLAYERS */}
+          <div className="bg-gray-800 rounded-2xl p-6 border border-gray-700">
+            <div className="flex justify-between mb-6">
+              <h2 className="text-2xl font-bold text-white">🏆 Top Players</h2>
               <Link
-                to="/league"
-                className="text-green-400 hover:text-green-300 font-semibold text-sm transition duration-300"
+                to="/players"
+                className="text-[#850cec] hover:text-purple-400"
               >
                 View All →
               </Link>
             </div>
 
-            <div className="space-y-6">
-              {fixtures.map((match) => (
+            <div className="space-y-4">
+              {topPlayers.map((player, index) => (
                 <div
-                  key={match.id}
-                  className="bg-gradient-to-r from-gray-800 to-gray-900 rounded-2xl p-6 border-2 border-gray-700 hover:border-green-500 transition duration-300 group"
+                  key={player.id}
+                  className="bg-gray-700 rounded-xl p-4 border border-gray-600 hover:border-[#850cec] transition"
                 >
-                  {match.featured && (
-                    <div className="flex justify-center mb-4">
-                      <span className="bg-gradient-to-r from-yellow-500 to-orange-500 text-black px-4 py-1 rounded-full text-xs font-bold">
-                        ⭐ FEATURED MATCH
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center space-x-4">
+                      <span className="text-xl font-bold text-yellow-400">
+                        {getRankBadge(index + 1)}
                       </span>
-                    </div>
-                  )}
-                  
-                  <div className="flex justify-between items-center mb-4">
-                    <div className="text-center flex-1">
-                      <div className="font-bold text-white text-lg mb-2">{match.homeTeam}</div>
-                      <div className="text-green-400 text-sm font-semibold">Home</div>
-                    </div>
-                    
-                    <div className="text-center mx-4">
-                      <div className="text-2xl font-black text-gray-400 mb-2">VS</div>
-                      <div className="text-xs text-gray-500 bg-gray-700 px-3 py-1 rounded-full">
-                        {getTimeUntilMatch(match.date, match.time)}
+
+                      <div
+                        className={`h-12 w-12 rounded-full flex items-center justify-center text-white font-bold ${getTeamColor(
+                          player.teamName
+                        )}`}
+                      >
+                        {getInitials(player.teamName)}
+                      </div>
+
+                      <div>
+                        <h3 className="font-bold text-white">
+                          {player.teamName}
+                        </h3>
+                        <p className="text-gray-400 text-sm">
+                          @{player.username}
+                        </p>
                       </div>
                     </div>
-                    
-                    <div className="text-center flex-1">
-                      <div className="font-bold text-white text-lg mb-2">{match.awayTeam}</div>
-                      <div className="text-blue-400 text-sm font-semibold">Away</div>
+
+                    <div className="text-right">
+                      <div className="text-lg font-bold text-[#850cec]">
+                        {player.points} PTS
+                      </div>
+                      <div className="text-sm text-gray-400">
+                        {player.won}-{player.drawn}-{player.lost}
+                      </div>
                     </div>
-                  </div>
-                  
-                  <div className="text-center text-sm text-gray-400 bg-gray-700/50 py-2 rounded-lg">
-                    <div className="font-semibold">Round {match.round}</div>
-                    <div>
-                      {new Date(match.date).toLocaleDateString('en-US', { 
-                        weekday: 'long', 
-                        year: 'numeric', 
-                        month: 'long', 
-                        day: 'numeric' 
-                      })} • {match.time}
-                    </div>
-                    <div className="text-green-400">🏟️ {match.venue}</div>
                   </div>
                 </div>
               ))}
-              
-              {fixtures.length === 0 && (
-                <div className="text-center py-12 bg-gradient-to-br from-gray-800 to-gray-900 rounded-2xl border-2 border-dashed border-gray-600">
-                  <div className="text-6xl mb-4">⚽</div>
-                  <h4 className="text-xl font-bold text-gray-400 mb-2">No Upcoming Matches</h4>
-                  <p className="text-gray-500">Check back later for new fixtures.</p>
+            </div>
+          </div>
+
+          {/* RECENT MATCHES */}
+          <div className="bg-gray-800 rounded-2xl p-6 border border-gray-700">
+            <div className="flex justify-between mb-6">
+              <h2 className="text-2xl font-bold text-white">⚡ Recent Matches</h2>
+              <Link
+                to="/league"
+                className="text-[#850cec] hover:text-purple-400"
+              >
+                View All →
+              </Link>
+            </div>
+
+            <div className="space-y-4">
+              {recentMatches.length > 0 ? (
+                recentMatches.map((match) => (
+                  <div
+                    key={match.id}
+                    className="bg-gray-700 rounded-xl p-4 border border-gray-600 hover:border-[#850cec] transition"
+                  >
+                    <div className="flex justify-between mb-2">
+                      <div className="flex items-center space-x-3">
+                        <div
+                          className={`h-8 w-8 rounded-full flex items-center justify-center text-white text-sm font-bold ${getTeamColor(
+                            match.homeTeam
+                          )}`}
+                        >
+                          {getInitials(match.homeTeam)}
+                        </div>
+                        <span className="text-white font-medium">
+                          {match.homeTeam}
+                        </span>
+                      </div>
+
+                      <div className="text-center text-white font-bold">
+                        {match.homeScore} - {match.awayScore}
+                        <div className="text-xs text-gray-400">
+                          Round {match.round}
+                        </div>
+                      </div>
+
+                      <div className="flex items-center space-x-3">
+                        <span className="text-white font-medium">
+                          {match.awayTeam}
+                        </span>
+                        <div
+                          className={`h-8 w-8 rounded-full flex items-center justify-center text-white text-sm font-bold ${getTeamColor(
+                            match.awayTeam
+                          )}`}
+                        >
+                          {getInitials(match.awayTeam)}
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="text-center text-xs text-gray-400">
+                      {new Date(match.date).toLocaleDateString()} •{" "}
+                      {match.venue}
+                    </div>
+                  </div>
+                ))
+              ) : (
+                <div className="text-center text-gray-400 py-8">
+                  No recent matches available
                 </div>
               )}
             </div>
           </div>
+        </div>
+      </section>
 
-          {/* Leaderboard & News */}
-          <div className="space-y-8">
-            {/* Top Players Leaderboard */}
-            <div className="bg-gray-800/50 backdrop-blur-sm rounded-3xl p-8 border border-gray-700 shadow-2xl">
-              <div className="flex items-center justify-between mb-8">
-                <h2 className="text-3xl font-bold text-white flex items-center">
-                  <span className="text-yellow-400 mr-3">🏆</span>
-                  Top Players
-                </h2>
+      {/* LEAGUES */}
+      <section className="py-16">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center mb-12">
+            <h2 className="text-3xl font-bold text-white mb-4">
+              Featured Leagues
+            </h2>
+            <p className="text-gray-400 text-lg max-w-2xl mx-auto">
+              Join exciting tournaments and compete against top players.
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {leagues.slice(0, 3).map((league) => (
+              <div
+                key={league.id}
+                className="bg-gray-800 rounded-2xl p-6 border border-gray-700 hover:border-[#850cec] transform hover:scale-105 transition"
+              >
+                <div className="flex justify-between mb-4">
+                  <h3 className="text-xl font-bold text-white">
+                    {league.name}
+                  </h3>
+                  <span className="bg-[#850cec] text-white px-3 py-1 rounded-full text-xs font-bold">
+                    {league.status || "ACTIVE"}
+                  </span>
+                </div>
+
+                <p className="text-gray-400 text-sm mb-4">
+                  {league.description ||
+                    "Competitive tournament with top players"}
+                </p>
+
+                <div className="flex justify-between text-gray-500 text-sm">
+                  <span>{league.teams?.length || 0} Teams</span>
+                  <span>Max: {league.maxTeams}</span>
+                </div>
+
                 <Link
                   to="/league"
-                  className="text-green-400 hover:text-green-300 font-semibold text-sm transition duration-300"
+                  className="block mt-4 bg-gray-700 hover:bg-[#850cec] text-white text-center py-2 rounded-xl transition"
                 >
-                  Full Table →
+                  View League
                 </Link>
               </div>
+            ))}
+          </div>
 
-              <div className="space-y-4">
-                {users.map((user, index) => (
-                  <div
-                    key={user.id}
-                    className="bg-gradient-to-r from-gray-800 to-gray-900 rounded-2xl p-4 border-2 border-gray-700 hover:border-yellow-400 transition duration-300 group"
-                  >
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center space-x-4">
-                        <div className="relative">
-                          <div className={`w-10 h-10 rounded-xl flex items-center justify-center font-bold text-white ${
-                            index === 0 ? 'bg-yellow-500' :
-                            index === 1 ? 'bg-gray-400' :
-                            index === 2 ? 'bg-orange-500' :
-                            'bg-gray-600'
-                          }`}>
-                            {index + 1}
-                          </div>
-                        </div>
-                        <img
-                          src={user.avatar || 'https://via.placeholder.com/40?text=TM'}
-                          alt={user.teamName}
-                          className="w-12 h-12 rounded-xl bg-gradient-to-br from-blue-500 to-purple-500"
-                          onError={(e) => {
-                            e.target.src = 'https://via.placeholder.com/40?text=TM';
-                          }}
-                        />
-                        <div>
-                          <div className="font-bold text-white text-lg">{user.teamName}</div>
-                          <div className="text-gray-400 text-sm">@{user.username}</div>
-                        </div>
-                      </div>
-                      
-                      <div className="text-right">
-                        <div className="text-2xl font-bold text-green-400">{user.points}</div>
-                        <div className="text-xs text-gray-400">PTS</div>
-                      </div>
-                    </div>
-                    
-                    {/* Mini Stats */}
-                    <div className="flex items-center justify-between mt-3 pt-3 border-t border-gray-700">
-                      <div className="flex space-x-1">
-                        {user.form.map((result, i) => (
-                          <span
-                            key={i}
-                            className={`w-6 h-6 rounded text-xs flex items-center justify-center font-bold text-white ${getFormColor(result)}`}
-                          >
-                            {result}
-                          </span>
-                        ))}
-                      </div>
-                      <div className="text-sm text-gray-400">
-                        {user.won}W {user.drawn}D {user.lost}L
-                      </div>
-                    </div>
-                  </div>
-                ))}
-              </div>
+          {leagues.length > 3 && (
+            <div className="text-center mt-8">
+              <Link
+                to="/league"
+                className="px-6 py-3 bg-gray-800 border-2 border-[#850cec] text-white rounded-xl hover:bg-gray-700 transition"
+              >
+                View All Leagues →
+              </Link>
             </div>
+          )}
+        </div>
+      </section>
 
-            {/* Latest News */}
-            <div className="bg-gray-800/50 backdrop-blur-sm rounded-3xl p-8 border border-gray-700 shadow-2xl">
-              <h2 className="text-3xl font-bold text-white flex items-center mb-8">
-                <span className="text-blue-400 mr-3">📢</span>
-                Latest News
-              </h2>
+      {/* CTA */}
+      <section className="py-20">
+        <div className="max-w-4xl mx-auto text-center px-4">
+          <div className="bg-gradient-to-r from-[#850cec] to-purple-600 p-12 rounded-3xl border border-[#850cec] shadow-2xl">
+            <h2 className="text-4xl font-bold text-white mb-4">
+              Ready to Compete?
+            </h2>
+            <p className="text-xl text-purple-200 mb-8">
+              Join thousands of players and start your journey to the top!
+            </p>
 
-              <div className="space-y-4">
-                {news.map((item) => (
-                  <div
-                    key={item.id}
-                    className="bg-gradient-to-r from-gray-800 to-gray-900 rounded-2xl p-4 border-2 border-gray-700 hover:border-blue-400 transition duration-300 group"
-                  >
-                    <div className="flex items-start space-x-4">
-                      <img
-                        src={item.image}
-                        alt={item.title}
-                        className="w-20 h-20 rounded-xl object-cover"
-                        onError={(e) => {
-                          e.target.src = 'https://via.placeholder.com/80?text=NEWS';
-                        }}
-                      />
-                      <div className="flex-1">
-                        <div className="flex items-center space-x-2 mb-2">
-                          <span className="bg-blue-500 text-white px-2 py-1 rounded text-xs font-bold">
-                            {item.category}
-                          </span>
-                          <span className="text-gray-400 text-xs">
-                            {new Date(item.date).toLocaleDateString()}
-                          </span>
-                        </div>
-                        <h3 className="font-bold text-white text-lg mb-1 group-hover:text-blue-300 transition duration-300">
-                          {item.title}
-                        </h3>
-                        <p className="text-gray-400 text-sm">
-                          {item.excerpt}
-                        </p>
-                      </div>
-                    </div>
-                  </div>
-                ))}
-              </div>
+            <div className="flex flex-col sm:flex-row justify-center gap-4">
+              <Link
+                to="/league"
+                className="bg-white text-[#850cec] hover:bg-gray-100 font-bold py-4 px-8 rounded-2xl transition"
+              >
+                🎮 Start Playing
+              </Link>
+              <Link
+                to="/players"
+                className="border-2 border-white text-white hover:bg-white hover:text-[#850cec] font-bold py-4 px-8 rounded-2xl transition"
+              >
+                👀 Browse Players
+              </Link>
             </div>
           </div>
         </div>
       </section>
 
-      {/* CTA Section */}
-      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20">
-        <div className="bg-gradient-to-r from-green-500/20 to-blue-500/20 rounded-3xl p-12 text-center border border-green-400/30">
-          <h2 className="text-4xl font-bold text-white mb-4">
-            Ready to Compete?
-          </h2>
-          <p className="text-xl text-gray-300 mb-8 max-w-2xl mx-auto">
-            Join the eFootball championship and test your skills against the best players worldwide.
+      {/* FOOTER */}
+      <footer className="bg-gray-900 border-t border-gray-800 py-12">
+        <div className="max-w-7xl mx-auto px-4 text-center">
+          <h3 className="text-2xl font-bold bg-gradient-to-r from-[#850cec] to-purple-500 bg-clip-text text-transparent mb-4">
+            eFootball
+          </h3>
+          <p className="text-gray-400 mb-6">
+            The ultimate platform for competitive gaming.
           </p>
-          <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <Link
-              to="/league"
-              className="bg-white text-gray-900 hover:bg-gray-100 font-bold py-4 px-8 rounded-2xl text-lg transition duration-300 transform hover:scale-105 shadow-2xl"
-            >
-              🎮 View Competition
+
+          <div className="flex justify-center space-x-6">
+            <Link to="/" className="text-gray-400 hover:text-[#850cec]">
+              Home
             </Link>
-            <button className="border-2 border-white text-white hover:bg-white hover:text-gray-900 font-bold py-4 px-8 rounded-2xl text-lg transition duration-300 transform hover:scale-105">
-              ⚡ Join Now
-            </button>
+            <Link to="/league" className="text-gray-400 hover:text-[#850cec]">
+              Leagues
+            </Link>
+            <Link to="/players" className="text-gray-400 hover:text-[#850cec]">
+              Players
+            </Link>
+          </div>
+
+          <div className="mt-6 text-sm text-gray-500">
+            © 2024 eFootball. All rights reserved.
           </div>
         </div>
-      </section>
+      </footer>
     </div>
   );
 };
